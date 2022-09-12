@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import CssBaseline from "@mui/material/CssBaseline";
+import { ConfirmProvider } from "material-ui-confirm";
 
 import store from "./redux/store";
 import { ThemeProvider } from "@mui/material";
@@ -16,11 +17,13 @@ root.render(
   <>
     <CssBaseline />
     <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </BrowserRouter>
+      <ConfirmProvider>
+        <BrowserRouter>
+          <Provider store={store}>
+            <App />
+          </Provider>
+        </BrowserRouter>
+      </ConfirmProvider>
     </ThemeProvider>
   </>
 );

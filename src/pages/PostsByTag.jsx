@@ -1,54 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import Grid from "@mui/material/Grid";
 
 import { Post } from "../components/Post";
-import { fetchPosts, fetchTags, fetchComments } from "../redux/slices/posts";
+import { fetchPosts } from "../redux/slices/posts";
 import { getCorrectTime, getCorrectDate } from "../utils/getCorrectDate";
 import { selectUser } from "../redux/slices/auth";
 import Sidebar from "../components/Sidebar";
+import { useParams } from "react-router-dom";
 
-export const Home = () => {
+export const PostsByTag = () => {
   const dispatch = useDispatch();
-  const { posts, comments } = useSelector((state) => state.posts);
+  const { posts } = useSelector((state) => state.posts);
   const userData = useSelector(selectUser);
-  const [activeTab, setActiveTab] = useState(0);
+  const { tag } = useParams();
+
   const isPostLoading = posts.status === "loading";
 
   useEffect(() => {
-    activeTab === 0
-      ? dispatch(fetchPosts())
-      : dispatch(fetchPosts(`sortBy=viewsCount&limit=5`));
+    dispatch(fetchPosts(`tag=${tag}`));
     // eslint-disable-next-line
-  }, [activeTab]);
-
-  useEffect(() => {
-    dispatch(fetchTags());
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    dispatch(fetchComments("limit=5"));
-    // eslint-disable-next-line
-  }, []);
-
-  const handleChange = (e, val) => {
-    setActiveTab(val);
-  };
+  }, [tag]);
 
   return (
     <>
-      <Tabs
-        style={{ marginBottom: 15 }}
-        value={activeTab}
-        aria-label="basic tabs example"
-        onChange={handleChange}
-      >
-        <Tab label="Новые" />
-        <Tab label="Популярные" />
-      </Tabs>
+      <h1>#{tag}</h1>
       <Grid container spacing={4}>
         <Grid xs={8} item>
           {(isPostLoading ? [...Array(5)] : posts.items).map((obj, index) =>
@@ -66,9 +42,7 @@ export const Home = () => {
 									${getCorrectTime(obj.createdAt)}
 								`}
                 viewsCount={obj.viewsCount}
-                commentsCount={
-                  comments.items[obj._id] ? comments.items[obj._id].length : 0
-                }
+                commentsCount={3}
                 tags={obj.tags}
                 isEditable={userData?._id === obj.user?._id}
               />

@@ -1,27 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import ReactMarkdown from "react-markdown";
 
-import axios from "../axios";
 import { Index } from "../components/AddComment";
 import { CommentsBlock } from "../components/CommentsBlock";
 import { Post } from "../components/Post";
 import { getCorrectDate, getCorrectTime } from "../utils/getCorrectDate";
+import { selectUser } from "../redux/slices/auth";
+import {
+  fetchPostComments,
+  fetchSinglePost,
+  selectSinglePost,
+} from "../redux/slices/posts";
 
 export const FullPost = () => {
-  const [data, setData] = useState(null);
+  const { data, status, comments } = useSelector(selectSinglePost);
   const { id } = useParams();
+  const userData = useSelector(selectUser);
+  const dispatch = useDispatch();
+
+  const isExistComments = comments.items?.length > 0;
+  const isCommentsLoading = comments.status === "loading";
+  const commentsCount = comments.items.length;
 
   useEffect(() => {
-    axios.get(`/posts/${id}`).then(({ data }) => setData(data));
+    dispatch(fetchSinglePost(id));
+    dispatch(fetchPostComments(id));
+    // eslint-disable-next-line
   }, [id]);
 
-  if (!data) {
-    return <Post isLoading={true} />;
+  if (status === "loading") {
+    return (
+      <>
+        <Post isLoading={true} />
+        <CommentsBlock isLoading={true} />
+      </>
+    );
   }
 
   return (
     <>
-      {
+      {data?._id && (
         <Post
           id={data._id}
           title={data.title}
@@ -32,35 +52,23 @@ export const FullPost = () => {
 						${getCorrectTime(data.createdAt)}
 					`}
           viewsCount={data.viewsCount}
-          commentsCount={3}
+          commentsCount={commentsCount}
           tags={data.tags}
           isFullPost
-          isLoading={!data._id}
+          isLoading={status === "loading"}
+          isEditable={userData?._id === data.user?._id}
         >
-          <p>{data.text}</p>
+          <ReactMarkdown children={data.text} />
         </Post>
+      )}
+      {
+        <CommentsBlock
+          items={isExistComments ? comments.items : []}
+          isLoading={isCommentsLoading === "loading"}
+        >
+          <Index />
+        </CommentsBlock>
       }
-      <CommentsBlock
-        items={[
-          {
-            user: {
-              fullName: "Вася Пупкин",
-              avatarUrl: "https://mui.com/static/images/avatar/1.jpg",
-            },
-            text: "Это тестовый комментарий 555555",
-          },
-          {
-            user: {
-              fullName: "Иван Иванов",
-              avatarUrl: "https://mui.com/static/images/avatar/2.jpg",
-            },
-            text: "When displaying three lines or more, the avatar is not aligned at the top. You should set the prop to align the avatar at the top",
-          },
-        ]}
-        isLoading={false}
-      >
-        <Index />
-      </CommentsBlock>
     </>
   );
 };
