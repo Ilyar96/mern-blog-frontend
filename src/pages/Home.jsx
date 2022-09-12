@@ -9,21 +9,30 @@ import { fetchPosts, fetchTags, fetchComments } from "../redux/slices/posts";
 import { getCorrectTime, getCorrectDate } from "../utils/getCorrectDate";
 import { selectUser } from "../redux/slices/auth";
 import Sidebar from "../components/Sidebar";
+import { useParams } from "react-router-dom";
 
 export const Home = () => {
   const dispatch = useDispatch();
   const { posts, comments } = useSelector((state) => state.posts);
   const userData = useSelector(selectUser);
   const [activeTab, setActiveTab] = useState(0);
+  const { tag } = useParams();
+
   const isPostLoading = posts.status === "loading";
+  const isCategoryPage = !!tag;
 
   useEffect(() => {
-    activeTab === 0
-      ? dispatch(fetchPosts())
-      : dispatch(fetchPosts(`sortBy=viewsCount&limit=5`));
-    // eslint-disable-next-line
-  }, [activeTab]);
+    if (!isCategoryPage) {
+      activeTab === 0
+        ? dispatch(fetchPosts())
+        : dispatch(fetchPosts(`sortBy=viewsCount&limit=5`));
+    } else {
+      dispatch(fetchPosts(`tag=${tag}`));
+    }
 
+    // eslint-disable-next-line
+  }, [activeTab, tag]);
+  console.log(1);
   useEffect(() => {
     dispatch(fetchTags());
     // eslint-disable-next-line
@@ -40,15 +49,19 @@ export const Home = () => {
 
   return (
     <>
-      <Tabs
-        style={{ marginBottom: 15 }}
-        value={activeTab}
-        aria-label="basic tabs example"
-        onChange={handleChange}
-      >
-        <Tab label="Новые" />
-        <Tab label="Популярные" />
-      </Tabs>
+      {!isCategoryPage ? (
+        <Tabs
+          style={{ marginBottom: 15 }}
+          value={activeTab}
+          aria-label="basic tabs example"
+          onChange={handleChange}
+        >
+          <Tab label="Новые" />
+          <Tab label="Популярные" />
+        </Tabs>
+      ) : (
+        <h1>#{tag}</h1>
+      )}
       <Grid container spacing={4}>
         <Grid xs={8} item>
           {(isPostLoading ? [...Array(5)] : posts.items).map((obj, index) =>
