@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
@@ -10,18 +10,29 @@ import Avatar from "@mui/material/Avatar";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
-import { selectIsAuth, fetchRegister } from "../../redux/slices/auth";
+import { selectIsAuth } from "../../redux/services/authSlice";
 import Modal from "../../components/Modal";
 import axios from "../../axios";
 
 import styles from "./Login.module.scss";
+import { useUploadImageMutation } from "../../redux/services/post";
+import { useRegisterMutation } from "../../redux/services/auth";
 
 export const Registration = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
   const isAuth = useSelector(selectIsAuth);
   const dispatch = useDispatch();
   const [imageUrl, setImageUrl] = useState("");
   const inputFileRef = useRef(null);
+  const [uploadImage, { isError: isUploadError }] = useUploadImageMutation();
+  const [
+    registerUser,
+    { isSuccess: isRegisterSuccess, isError: isRegisterError },
+  ] = useRegisterMutation();
+
+  const modalText = isUploadError
+    ? "Не удалось загрузить изображение"
+    : "Не удалось зарегистрироваться";
+  const isError = isRegisterError || isUploadError;
 
   const formSchema = Yup.object().shape({
     fullName: Yup.string().required("Введите полное имя"),
@@ -50,19 +61,12 @@ export const Registration = () => {
 
   const onSubmit = async (values) => {
     const { passwordConfirm, ...fetchData } = values;
-    fetchData.avatarUrl = `http://localhost:4444${imageUrl}`;
+    fetchData.avatarUrl = imageUrl ? `http://localhost:4444${imageUrl}` : "";
 
-    const data = await dispatch(fetchRegister(fetchData));
+    const { data } = await registerUser(fetchData);
 
-    if (!data.payload) {
-      setModalOpen(true);
-      return setTimeout(function () {
-        setModalOpen(false);
-      }, 4000);
-    }
-
-    if ("token" in data.payload) {
-      window.localStorage.setItem("token", data.payload.token);
+    if (data?.token) {
+      window.localStorage.setItem("token", data.token);
     }
   };
 
@@ -70,17 +74,15 @@ export const Registration = () => {
     try {
       const formData = new FormData();
       const file = e.target.files[0];
-      console.log(file);
       formData.append("image", file);
-      const { data } = await axios.post("/upload", formData);
+      const { data } = await uploadImage(formData);
       setImageUrl(data.url);
     } catch (err) {
       console.log(err);
-      // onChangeModalData(true, "Ошибка при загрузке файла");
     }
   };
 
-  if (isAuth) {
+  if (isAuth || isRegisterSuccess) {
     return <Navigate to="/" />;
   }
 
@@ -152,7 +154,7 @@ export const Registration = () => {
           </Button>
         </form>
       </Paper>
-      <Modal isOpen={isModalOpen} text={"Не удалось Зарегистрироваться"} />
+      <Modal isOpen={isError} text={modalText} />
     </>
   );
 };

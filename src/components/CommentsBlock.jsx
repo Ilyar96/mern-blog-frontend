@@ -13,26 +13,15 @@ import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Clear";
 import { useConfirm } from "material-ui-confirm";
 
-import { selectUser } from "../redux/slices/auth";
-import {
-  fetchRemoveComment,
-  fetchPostComments,
-  fetchComments,
-} from "../redux/slices/posts";
+import { selectUser } from "../redux/services/authSlice";
 import Modal from "./Modal";
+import { useDeleteCommentMutation } from "../redux/services/post";
 
-export const CommentsBlock = ({ items, children, isLoading = true }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export const CommentsBlock = ({ items, children, isLoading }) => {
   const user = useSelector(selectUser);
-  const dispatch = useDispatch();
   const confirm = useConfirm();
-
-  const onChangeModalData = (isOpen) => {
-    setIsModalOpen(true);
-    setTimeout(function () {
-      setIsModalOpen(false);
-    }, 4000);
-  };
+  const [deleteComment, { isError }] = useDeleteCommentMutation();
+  const comments = items ? items : [];
 
   const onClickRemove = (id) => {
     try {
@@ -42,22 +31,13 @@ export const CommentsBlock = ({ items, children, isLoading = true }) => {
         title: "Вы действительно хотите удалить комментарий?",
       })
         .then(async () => {
-          const res = await dispatch(fetchRemoveComment(id));
-
-          if (!res?.error) {
-            dispatch(fetchPostComments(id));
-            dispatch(fetchComments("limit=5"));
-          } else {
-            onChangeModalData(true);
-          }
+          deleteComment(id);
         })
         .catch((err) => {
           console.log(err);
-          onChangeModalData(true);
         });
     } catch (err) {
       console.log(err);
-      onChangeModalData(true);
     }
   };
 
@@ -65,7 +45,7 @@ export const CommentsBlock = ({ items, children, isLoading = true }) => {
     <>
       <SideBlock title="Комментарии">
         <List>
-          {(isLoading ? [...Array(5)] : items).map((obj, index) => (
+          {(isLoading ? [...Array(5)] : comments).map((obj, index) => (
             <React.Fragment key={index}>
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
@@ -107,7 +87,7 @@ export const CommentsBlock = ({ items, children, isLoading = true }) => {
         </List>
         {children}
       </SideBlock>
-      <Modal isOpen={isModalOpen} text={"Не удалось удалить комментарий"} />
+      <Modal isOpen={isError} text={"Не удалось удалить комментарий"} />
     </>
   );
 };

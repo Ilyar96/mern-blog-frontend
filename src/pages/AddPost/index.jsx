@@ -7,38 +7,38 @@ import SimpleMDE from "react-simplemde-editor";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 import axios from "../../axios";
-import { selectIsAuth } from "../../redux/slices/auth";
+import { selectIsAuth } from "../../redux/services/authSlice";
 import Modal from "../../components/Modal";
-import { fetchSinglePost, selectSinglePost } from "../../redux/slices/posts";
 
 import "easymde/dist/easymde.min.css";
 import styles from "./AddPost.module.scss";
+import {
+  useAddPostMutation,
+  useGetPostQuery,
+  useUpdatePostMutation,
+} from "../../redux/services/post";
 
 export const AddPost = () => {
-  const dispatch = useDispatch();
   const { id } = useParams();
   const isAuth = useSelector(selectIsAuth);
-  const { data: postData } = useSelector(selectSinglePost);
+  const { data: postData } = useGetPostQuery(id);
+
+  const [addPost, { isSuccess: isAddingSuccess, isError: isAddingError }] =
+    useAddPostMutation();
+  const [
+    updatePost,
+    { isSuccess: isUpdatingSuccess, isError: isUpdatingError },
+  ] = useUpdatePostMutation();
   const [text, setText] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [tags, setTags] = React.useState("");
-  const [modalData, setModalData] = React.useState({
-    isOpen: false,
-    text: "",
-  });
+  const [postId, setPostId] = React.useState(id);
+  const [modalText, setModalText] = React.useState(
+    id ? "Ошибка при обновлении статьи" : "Ошибка при создании статьи"
+  );
 
-  const onChangeModalData = (isOpen, text) => {
-    setModalData({
-      isOpen,
-      text: text,
-    });
-    setTimeout(function () {
-      setModalData({
-        isOpen: false,
-        text: "",
-      });
-    }, 4000);
-  };
+  const isError = id ? isUpdatingError : isAddingError;
+  const isSuccess = id ? isUpdatingSuccess : isAddingSuccess;
 
   const [imageUrl, setImageUrl] = React.useState("");
   const inputFileRef = React.useRef(null);
@@ -46,7 +46,7 @@ export const AddPost = () => {
   const isEditing = Boolean(id);
   useEffect(() => {
     if (isEditing) {
-      dispatch(fetchSinglePost(id));
+      addPost(id);
     } else {
       setImageUrl("");
       setText("");
@@ -66,6 +66,12 @@ export const AddPost = () => {
     // eslint-disable-next-line
   }, [postData]);
 
+  useEffect(() => {
+    if (isSuccess && postId) {
+      navigate(`/posts/${postId}`);
+    }
+  }, [isSuccess, postId]);
+
   const handleChangeFile = async (e) => {
     try {
       const formData = new FormData();
@@ -75,7 +81,6 @@ export const AddPost = () => {
       setImageUrl(data.url);
     } catch (err) {
       console.log(err);
-      onChangeModalData(true, "Ошибка при загрузке файла");
     }
   };
 
@@ -86,10 +91,11 @@ export const AddPost = () => {
   }, []);
 
   const onSubmit = async (e) => {
-    const tagsArr = tags.trim().length
-      ? tags.split(",").map((str) => str.trim())
-      : [];
     try {
+      const tagsArr = tags.trim().length
+        ? tags.split(",").map((str) => str.trim())
+        : [];
+
       const fields = {
         title,
         imageUrl,
@@ -97,26 +103,19 @@ export const AddPost = () => {
         text,
       };
 
-      const { data } = isEditing
-        ? await axios.patch(`/posts/${id}`, fields)
-        : await axios.post("/posts", fields);
+      const { data, error } = isEditing
+        ? await updatePost({ id, body: fields })
+        : await addPost(fields);
 
-      const postId = isEditing ? id : data._id;
+      if (error) {
+        setModalText(error.data[0].msg);
+      }
 
-      navigate(`/posts/${postId}`);
+      if (data?._id) {
+        setPostId(data._id);
+      }
     } catch (err) {
       console.log(err);
-      const errorMessage = err ? err?.response?.data[0].msg : null;
-      console.warn(err);
-      onChangeModalData(
-        true,
-        errorMessage
-          ? errorMessage
-          : isEditing
-          ? "Ошибка при обновлении статьи"
-          : "Ошибка при создании статьи",
-        setModalData
-      );
     }
   };
 
@@ -212,7 +211,7 @@ export const AddPost = () => {
           </a>
         </div>
       </Paper>
-      <Modal isOpen={modalData.isOpen} text={modalData.text} />
+      <Modal isOpen={isError} text={modalText} />
     </>
   );
 };

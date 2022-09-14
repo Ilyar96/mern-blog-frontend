@@ -7,12 +7,11 @@ import styles from "./Header.module.scss";
 import Container from "@mui/material/Container";
 import { useConfirm } from "material-ui-confirm";
 
-import { logout, selectIsAuth } from "../../redux/slices/auth";
+import { logout, selectIsAuth } from "../../redux/services/authSlice";
 
 export const Header = () => {
   const dispatch = useDispatch();
   const isAuth = useSelector(selectIsAuth);
-
   const confirm = useConfirm();
 
   const onClickLogout = () => {

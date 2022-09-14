@@ -1,75 +1,42 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import TextField from "@mui/material/TextField";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import { selectUser } from "../../redux/slices/auth";
-import {
-  selectSinglePost,
-  fetchAddComments,
-  fetchPostComments,
-} from "../../redux/slices/posts";
+import { selectUser } from "../../redux/services/authSlice";
 import Modal from "../Modal";
 
 import styles from "./AddComment.module.scss";
+import { useAddCommentMutation } from "../../redux/services/post";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export const Index = () => {
-  const dispatch = useDispatch();
   const [text, setText] = useState("");
   const user = useSelector(selectUser);
-  const { data } = useSelector(selectSinglePost);
-  const [modalData, setModalData] = useState({
-    isOpen: false,
-    text: "",
-  });
+  const { id: postId } = useParams();
+  const [addComment, { isError, isSuccess }] = useAddCommentMutation();
 
   const isDisabled = text.length === 0;
 
-  const onChangeModalData = (isOpen, text) => {
-    setModalData({
-      isOpen,
-      text: text,
-    });
-    setTimeout(function () {
-      setModalData({
-        isOpen: false,
-        text: "",
-      });
-    }, 4000);
-  };
+  useEffect(() => {
+    if (isSuccess) {
+      setText("");
+    }
+  }, [isSuccess]);
 
-  const onSubmit = async (e) => {
+  const onSubmit = async () => {
+    const commentData = {
+      text,
+      user,
+      postId,
+    };
+
     try {
-      const commentData = {
-        text,
-        user,
-        postId: data?._id,
-      };
-
-      dispatch(fetchAddComments(commentData)).then((action) => {
-        if (action?.error) {
-          console.warn(action?.error);
-
-          const errorMessage = null;
-
-          onChangeModalData(
-            true,
-            errorMessage ? errorMessage : "Ошибка при добавлении комментария"
-          );
-        } else {
-          dispatch(fetchPostComments(action?.payload?.postId));
-          setText("");
-        }
-      });
+      await addComment(commentData);
     } catch (err) {
       console.warn(err);
-      const errorMessage = err ? err?.response?.data[0].msg : null;
-
-      onChangeModalData(
-        true,
-        errorMessage ? errorMessage : "Ошибка при добавлении комментария"
-      );
     }
   };
 
@@ -99,7 +66,7 @@ export const Index = () => {
               </Button>
             </div>
           </div>
-          <Modal isOpen={modalData.isOpen} text={modalData.text} />
+          <Modal isOpen={isError} text={"Нe далось добавить комментарий"} />
         </>
       )}
     </>

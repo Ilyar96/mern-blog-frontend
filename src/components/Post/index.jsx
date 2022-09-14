@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import IconButton from "@mui/material/IconButton";
@@ -11,10 +10,13 @@ import { useConfirm } from "material-ui-confirm";
 
 import { UserInfo } from "../UserInfo";
 import { PostSkeleton } from "./Skeleton";
-import { fetchRemovePosts } from "../../redux/slices/posts";
 import Modal from "../Modal";
 
 import styles from "./Post.module.scss";
+import {
+  useDeleteCommentsByPostIdMutation,
+  useDeletePostMutation,
+} from "../../redux/services/post";
 
 export const Post = ({
   id,
@@ -30,10 +32,16 @@ export const Post = ({
   isLoading,
   isEditable,
 }) => {
-  const dispatch = useDispatch();
   const confirm = useConfirm();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletePost, { isSuccess, isError }] = useDeletePostMutation();
+  const [deleteCommentsByPotsId] = useDeleteCommentsByPostIdMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      navigate("/");
+    }
+  }, [isSuccess]);
 
   if (isLoading) {
     return <PostSkeleton />;
@@ -45,16 +53,15 @@ export const Post = ({
         cancellationText: "Отмена",
         confirmationText: "Удалить",
         title: "Вы действительно хотите удалить статью?",
-      }).then(() => {
-        dispatch(fetchRemovePosts(id));
-        navigate("/");
+      }).then(async () => {
+        const { error } = await deletePost(id);
+        console.log(error);
+        if (!error) {
+          deleteCommentsByPotsId(id);
+        }
       });
     } catch (err) {
       console.log(err);
-      setIsModalOpen(true);
-      setTimeout(function () {
-        setIsModalOpen(false);
-      }, 4000);
     }
   };
 
@@ -114,7 +121,7 @@ export const Post = ({
           </div>
         </div>
       </div>
-      <Modal isOpen={isModalOpen} text={"Не удалось удалить статью"} />
+      <Modal isOpen={isError} text={"Не удалось удалить статью"} />
     </>
   );
 };

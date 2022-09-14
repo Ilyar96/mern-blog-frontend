@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
@@ -9,15 +9,16 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
-import { fetchLogin, selectIsAuth } from "../../redux/slices/auth";
 import Modal from "../../components/Modal";
 
 import styles from "./Login.module.scss";
+import { useLoginMutation } from "../../redux/services/auth";
+import { selectToken, selectIsAuth } from "../../redux/services/authSlice";
 
 export const Login = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const isAuth = useSelector(selectIsAuth);
-  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const [login, { isError }] = useLoginMutation();
 
   const formSchema = Yup.object().shape({
     email: Yup.string()
@@ -29,26 +30,20 @@ export const Login = () => {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isValid },
   } = useForm({
     resolver: yupResolver(formSchema),
     mode: "onChange",
   });
 
-  const onSubmit = async (values) => {
-    const data = await dispatch(fetchLogin(values));
-
-    if (!data.payload) {
-      setIsOpen(true);
-      return setTimeout(function () {
-        setIsOpen(false);
-      }, 4000);
+  useEffect(() => {
+    if (token) {
+      window.localStorage.setItem("token", token);
     }
+  }, [token]);
 
-    if ("token" in data.payload) {
-      window.localStorage.setItem("token", data.payload.token);
-    }
+  const onSubmit = (values) => {
+    login(values);
   };
 
   if (isAuth) {
@@ -89,7 +84,7 @@ export const Login = () => {
           </Button>
         </form>
       </Paper>
-      <Modal isOpen={isOpen}>Не удалось авторизоваться</Modal>
+      <Modal isOpen={isError}>Не удалось авторизоваться</Modal>
     </>
   );
 };

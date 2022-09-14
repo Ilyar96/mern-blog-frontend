@@ -1,20 +1,15 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Container from "@mui/material/Container";
 
 import { Header } from "./components";
 import { Home, FullPost, Registration, AddPost, Login } from "./pages";
-import { fetchAuthMe } from "./redux/slices/auth";
+import { useAuthMeQuery } from "./redux/services/auth";
 
 function App() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchAuthMe());
-    // eslint-disable-next-line
-  }, []);
+  useAuthMeQuery();
 
   return (
     <>
@@ -28,6 +23,7 @@ function App() {
           <Route path="/add-post" element={<AddPost />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </Container>
     </>

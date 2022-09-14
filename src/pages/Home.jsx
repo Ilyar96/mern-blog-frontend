@@ -1,47 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Grid from "@mui/material/Grid";
 
 import { Post } from "../components/Post";
-import { fetchPosts, fetchTags, fetchComments } from "../redux/slices/posts";
 import { getCorrectTime, getCorrectDate } from "../utils/getCorrectDate";
-import { selectUser } from "../redux/slices/auth";
-import Sidebar from "../components/Sidebar";
+import { selectUser } from "../redux/services/authSlice";
 import { useParams } from "react-router-dom";
+import {
+  useGetCommentsQuery,
+  useGetPostsQuery,
+  useGetTagsQuery,
+} from "../redux/services/posts";
+import { TagsBlock } from "../components/TagsBlock";
+import { CommentsBlock } from "../components/CommentsBlock";
 
 export const Home = () => {
-  const dispatch = useDispatch();
-  const { posts, comments } = useSelector((state) => state.posts);
   const userData = useSelector(selectUser);
   const [activeTab, setActiveTab] = useState(0);
   const { tag } = useParams();
 
-  const isPostLoading = posts.status === "loading";
   const isCategoryPage = !!tag;
 
-  useEffect(() => {
-    if (!isCategoryPage) {
-      activeTab === 0
-        ? dispatch(fetchPosts())
-        : dispatch(fetchPosts(`sortBy=viewsCount&limit=5`));
-    } else {
-      dispatch(fetchPosts(`tag=${tag}`));
-    }
+  const posts = useGetPostsQuery();
+  const popularPosts = useGetPostsQuery(`sortBy=viewsCount&limit=5`);
+  const categoryPosts = useGetPostsQuery(`tag=${tag}`);
+  const { data: tags = [], isFetching: isTagsLoading } = useGetTagsQuery();
+  const { data: comments = [], isFetching: isCommentsLoading } =
+    useGetCommentsQuery();
 
-    // eslint-disable-next-line
-  }, [activeTab, tag]);
-  console.log(1);
-  useEffect(() => {
-    dispatch(fetchTags());
-    // eslint-disable-next-line
-  }, []);
+  const isPostLoading =
+    posts.isLoading || categoryPosts.isLoading || popularPosts.isLoading;
 
-  useEffect(() => {
-    dispatch(fetchComments("limit=5"));
-    // eslint-disable-next-line
-  }, []);
+  const data = isCategoryPage
+    ? categoryPosts.data
+    : activeTab === 0
+    ? posts.data
+    : popularPosts.data;
 
   const handleChange = (e, val) => {
     setActiveTab(val);
@@ -64,8 +60,12 @@ export const Home = () => {
       )}
       <Grid container spacing={4}>
         <Grid xs={8} item>
-          {(isPostLoading ? [...Array(5)] : posts.items).map((obj, index) =>
-            isPostLoading ? (
+          {(isPostLoading ? [...Array(5)] : data).map((obj, index) => {
+            const commentsCount = comments.filter(
+              (comment) => comment.postId === obj?._id
+            ).length;
+
+            return isPostLoading ? (
               <Post key={index} isLoading={true} />
             ) : (
               <Post
@@ -79,16 +79,20 @@ export const Home = () => {
 									${getCorrectTime(obj.createdAt)}
 								`}
                 viewsCount={obj.viewsCount}
-                commentsCount={
-                  comments.items[obj._id] ? comments.items[obj._id].length : 0
-                }
+                commentsCount={commentsCount}
                 tags={obj.tags}
                 isEditable={userData?._id === obj.user?._id}
               />
-            )
-          )}
+            );
+          })}
         </Grid>
-        <Sidebar />
+        <Grid xs={4} item>
+          <TagsBlock items={tags} isLoading={isTagsLoading} />
+          <CommentsBlock
+            items={comments ? comments.slice(0, 5) : []}
+            isLoading={isCommentsLoading}
+          />
+        </Grid>
       </Grid>
     </>
   );
