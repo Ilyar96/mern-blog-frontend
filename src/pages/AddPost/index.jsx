@@ -1,28 +1,28 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import SimpleMDE from "react-simplemde-editor";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-import axios from "../../axios";
 import { selectIsAuth } from "../../redux/services/authSlice";
 import Modal from "../../components/Modal";
-
-import "easymde/dist/easymde.min.css";
-import styles from "./AddPost.module.scss";
 import {
   useAddPostMutation,
   useGetPostQuery,
   useUpdatePostMutation,
+  useUploadImageMutation,
 } from "../../redux/services/post";
+
+import "easymde/dist/easymde.min.css";
+import styles from "./AddPost.module.scss";
 
 export const AddPost = () => {
   const { id } = useParams();
   const isAuth = useSelector(selectIsAuth);
   const { data: postData } = useGetPostQuery(id);
-
+  const [uploadImage, { isError: isUploadError }] = useUploadImageMutation();
   const [addPost, { isSuccess: isAddingSuccess, isError: isAddingError }] =
     useAddPostMutation();
   const [
@@ -36,7 +36,6 @@ export const AddPost = () => {
   const [modalText, setModalText] = React.useState(
     id ? "Ошибка при обновлении статьи" : "Ошибка при создании статьи"
   );
-
   const isError = id ? isUpdatingError : isAddingError;
   const isSuccess = id ? isUpdatingSuccess : isAddingSuccess;
 
@@ -44,10 +43,9 @@ export const AddPost = () => {
   const inputFileRef = React.useRef(null);
   const navigate = useNavigate();
   const isEditing = Boolean(id);
+
   useEffect(() => {
-    if (isEditing) {
-      addPost(id);
-    } else {
+    if (!isEditing) {
       setImageUrl("");
       setText("");
       setTitle("");
@@ -57,6 +55,7 @@ export const AddPost = () => {
   }, [id]);
 
   useEffect(() => {
+    console.log(isEditing, postData?._id);
     if (isEditing && postData?._id) {
       setImageUrl(postData.imageUrl);
       setText(postData.text);
@@ -64,7 +63,7 @@ export const AddPost = () => {
       setTags(postData.tags.join(","));
     }
     // eslint-disable-next-line
-  }, [postData]);
+  }, [id, postData]);
 
   useEffect(() => {
     if (isSuccess && postId) {
@@ -77,7 +76,7 @@ export const AddPost = () => {
       const formData = new FormData();
       const file = e.target.files[0];
       formData.append("image", file);
-      const { data } = await axios.post("/upload", formData);
+      const { data } = await uploadImage(formData);
       setImageUrl(data.url);
     } catch (err) {
       console.log(err);
@@ -132,6 +131,7 @@ export const AddPost = () => {
       status: false,
       autosave: {
         enabled: true,
+        uniqueId: Math.random(),
         delay: 1000,
       },
     }),
@@ -212,6 +212,7 @@ export const AddPost = () => {
         </div>
       </Paper>
       <Modal isOpen={isError} text={modalText} />
+      <Modal isOpen={isUploadError} text={"Не удалось загрузить изображение"} />
     </>
   );
 };

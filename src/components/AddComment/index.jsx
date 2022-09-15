@@ -18,7 +18,7 @@ export const Index = () => {
   const { id: postId } = useParams();
   const [addComment, { isError, isSuccess }] = useAddCommentMutation();
 
-  const isDisabled = text.length === 0;
+  const isDisabled = !text.length;
 
   useEffect(() => {
     if (isSuccess) {

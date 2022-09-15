@@ -10,10 +10,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 
 import Modal from "../../components/Modal";
-
-import styles from "./Login.module.scss";
 import { useLoginMutation } from "../../redux/services/auth";
 import { selectToken, selectIsAuth } from "../../redux/services/authSlice";
+
+import styles from "./Login.module.scss";
 
 export const Login = () => {
   const isAuth = useSelector(selectIsAuth);

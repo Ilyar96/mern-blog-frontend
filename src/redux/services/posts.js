@@ -1,11 +1,10 @@
-import { retry } from "@reduxjs/toolkit/query/react";
 import { api } from "./api";
 
 export const postsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getPosts: builder.query({
-      query: (params = "") => `/posts/?${params}`,
-      providesTags: ["Posts", "Comments"],
+      query: (params) => `/posts/?${params}`,
+      providesTags: ["Posts", "Tags"],
     }),
     getPost: builder.query({
       query: (id) => `/posts/${id}`,

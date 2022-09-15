@@ -1,12 +1,7 @@
-import { retry } from "@reduxjs/toolkit/query/react";
 import { api } from "./api";
 
 export const postApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getPosts: builder.query({
-      query: (params) => `/posts/?${params}`,
-      providesTags: ["Posts", "Tags"],
-    }),
     getPost: builder.query({
       query: (id) => `/posts/${id}`,
       providesTags: ["Posts", "Tags"],
@@ -43,7 +38,7 @@ export const postApi = api.injectEndpoints({
       invalidatesTags: ["Posts", "Tags"],
     }),
     getPostComments: builder.query({
-      query: (postId) => `/comments/${postId}`,
+      query: ({ postId, params = "" }) => `/comments/${postId}?${params}`,
       providesTags: ["Comments"],
     }),
     addComment: builder.mutation({
@@ -59,7 +54,7 @@ export const postApi = api.injectEndpoints({
         url: `/comment/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Posts", "Comments"],
+      invalidatesTags: ["Comments"],
     }),
     deleteCommentsByPostId: builder.mutation({
       query: (id) => ({
@@ -72,7 +67,6 @@ export const postApi = api.injectEndpoints({
 });
 
 export const {
-  useGetPostsQuery,
   useGetPostQuery,
   useAddPostMutation,
   useUpdatePostMutation,

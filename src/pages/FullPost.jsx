@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ReactMarkdown from "react-markdown";
@@ -20,12 +21,15 @@ export const FullPost = () => {
     isLoading: isPostLoading,
     isError: isPostError,
   } = useGetPostQuery(id);
-  const { data: comments = [], isLoading: isCommentsLoading } =
-    useGetPostCommentsQuery(id);
+  const { data: comments, isLoading } = useGetPostCommentsQuery({
+    postId: id,
+  });
 
-  const commentsCount = comments.length;
+  const observerRef = useRef();
+  const commentsCount = comments?.commentsCount;
+  const isCommentsLoading = !!comments?.data.length && isLoading;
 
-  if (isPostLoading || isCommentsLoading) {
+  if (isPostLoading) {
     return (
       <>
         {isPostLoading && <Post isLoading={true} />}
@@ -60,11 +64,13 @@ export const FullPost = () => {
           <ReactMarkdown children={data.text} />
         </Post>
       )}
-      {
-        <CommentsBlock items={comments} isLoading={isCommentsLoading}>
-          <Index />
-        </CommentsBlock>
-      }
+      <CommentsBlock
+        commentsRef={observerRef}
+        items={comments?.data}
+        isLoading={isCommentsLoading}
+      >
+        <Index />
+      </CommentsBlock>
     </>
   );
 };

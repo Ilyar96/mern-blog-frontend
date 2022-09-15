@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
@@ -12,15 +12,13 @@ import * as Yup from "yup";
 
 import { selectIsAuth } from "../../redux/services/authSlice";
 import Modal from "../../components/Modal";
-import axios from "../../axios";
-
-import styles from "./Login.module.scss";
 import { useUploadImageMutation } from "../../redux/services/post";
 import { useRegisterMutation } from "../../redux/services/auth";
 
+import styles from "./Login.module.scss";
+
 export const Registration = () => {
   const isAuth = useSelector(selectIsAuth);
-  const dispatch = useDispatch();
   const [imageUrl, setImageUrl] = useState("");
   const inputFileRef = useRef(null);
   const [uploadImage, { isError: isUploadError }] = useUploadImageMutation();
@@ -93,11 +91,9 @@ export const Registration = () => {
           Создание аккаунта
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div
-            onClick={() => inputFileRef.current.click()}
-            className={styles.avatar}
-          >
+          <div className={styles.avatar}>
             <Avatar
+              onClick={() => inputFileRef.current.click()}
               src={`http://localhost:4444${imageUrl}`}
               sx={{ width: 100, height: 100 }}
             />

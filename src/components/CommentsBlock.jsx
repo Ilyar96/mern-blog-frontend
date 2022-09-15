@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 
 import { SideBlock } from "./SideBlock";
 import ListItem from "@mui/material/ListItem";
@@ -17,7 +17,7 @@ import { selectUser } from "../redux/services/authSlice";
 import Modal from "./Modal";
 import { useDeleteCommentMutation } from "../redux/services/post";
 
-export const CommentsBlock = ({ items, children, isLoading }) => {
+export const CommentsBlock = ({ items, children, isLoading, commentsRef }) => {
   const user = useSelector(selectUser);
   const confirm = useConfirm();
   const [deleteComment, { isError }] = useDeleteCommentMutation();
@@ -44,7 +44,8 @@ export const CommentsBlock = ({ items, children, isLoading }) => {
   return (
     <>
       <SideBlock title="Комментарии">
-        <List>
+        {children}
+        <List ref={commentsRef}>
           {(isLoading ? [...Array(5)] : comments).map((obj, index) => (
             <React.Fragment key={index}>
               <ListItem alignItems="flex-start">
@@ -85,7 +86,6 @@ export const CommentsBlock = ({ items, children, isLoading }) => {
             </React.Fragment>
           ))}
         </List>
-        {children}
       </SideBlock>
       <Modal isOpen={isError} text={"Не удалось удалить комментарий"} />
     </>

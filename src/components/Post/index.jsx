@@ -11,12 +11,12 @@ import { useConfirm } from "material-ui-confirm";
 import { UserInfo } from "../UserInfo";
 import { PostSkeleton } from "./Skeleton";
 import Modal from "../Modal";
-
-import styles from "./Post.module.scss";
 import {
   useDeleteCommentsByPostIdMutation,
   useDeletePostMutation,
 } from "../../redux/services/post";
+
+import styles from "./Post.module.scss";
 
 export const Post = ({
   id,
@@ -31,6 +31,7 @@ export const Post = ({
   isFullPost,
   isLoading,
   isEditable,
+  test,
 }) => {
   const confirm = useConfirm();
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export const Post = ({
     if (isSuccess) {
       navigate("/");
     }
+    // eslint-disable-next-line
   }, [isSuccess]);
 
   if (isLoading) {
