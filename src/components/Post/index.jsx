@@ -11,10 +11,7 @@ import { useConfirm } from "material-ui-confirm";
 import { UserInfo } from "../UserInfo";
 import { PostSkeleton } from "./Skeleton";
 import Modal from "../Modal";
-import {
-  useDeleteCommentsByPostIdMutation,
-  useDeletePostMutation,
-} from "../../redux/services/post";
+import { useDeletePostMutation } from "../../redux/services/post";
 
 import styles from "./Post.module.scss";
 
@@ -36,7 +33,6 @@ export const Post = ({
   const confirm = useConfirm();
   const navigate = useNavigate();
   const [deletePost, { isSuccess, isError }] = useDeletePostMutation();
-  const [deleteCommentsByPotsId] = useDeleteCommentsByPostIdMutation();
 
   useEffect(() => {
     if (isSuccess) {
@@ -57,10 +53,6 @@ export const Post = ({
         title: "Вы действительно хотите удалить статью?",
       }).then(async () => {
         const { error } = await deletePost(id);
-        console.log(error);
-        if (!error) {
-          deleteCommentsByPotsId(id);
-        }
       });
     } catch (err) {
       console.log(err);

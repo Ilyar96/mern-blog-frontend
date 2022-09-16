@@ -27,7 +27,7 @@ export const postApi = api.injectEndpoints({
         url: `/posts/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Posts", "Tags"],
+      invalidatesTags: ["Posts", "Tags", "Comments"],
     }),
     uploadImage: builder.mutation({
       query: (body) => ({
@@ -56,13 +56,6 @@ export const postApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Comments"],
     }),
-    deleteCommentsByPostId: builder.mutation({
-      query: (id) => ({
-        url: `/comments/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Posts", "Comments"],
-    }),
   }),
 });
 
@@ -74,6 +67,5 @@ export const {
   useGetPostCommentsQuery,
   useAddCommentMutation,
   useDeleteCommentMutation,
-  useDeleteCommentsByPostIdMutation,
   useUploadImageMutation,
 } = postApi;

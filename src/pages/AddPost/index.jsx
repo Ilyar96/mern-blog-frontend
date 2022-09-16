@@ -55,7 +55,6 @@ export const AddPost = () => {
   }, [id]);
 
   useEffect(() => {
-    console.log(isEditing, postData?._id);
     if (isEditing && postData?._id) {
       setImageUrl(postData.imageUrl);
       setText(postData.text);
@@ -63,7 +62,7 @@ export const AddPost = () => {
       setTags(postData.tags.join(","));
     }
     // eslint-disable-next-line
-  }, [id, postData]);
+  }, [id, postData?._id]);
 
   useEffect(() => {
     if (isSuccess && postId) {
@@ -75,6 +74,7 @@ export const AddPost = () => {
     try {
       const formData = new FormData();
       const file = e.target.files[0];
+      console.log(file);
       formData.append("image", file);
       const { data } = await uploadImage(formData);
       setImageUrl(data.url);
@@ -83,7 +83,9 @@ export const AddPost = () => {
     }
   };
 
-  const onClickRemoveImage = () => setImageUrl("");
+  const onClickRemoveImage = () => {
+    setImageUrl("");
+  };
 
   const onChange = React.useCallback((value) => {
     setText(value);
