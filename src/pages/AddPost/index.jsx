@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import SimpleMDE from "react-simplemde-editor";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 
 import { selectIsAuth } from "../../redux/services/authSlice";
 import Modal from "../../components/Modal";
@@ -68,6 +69,7 @@ export const AddPost = () => {
     if (isSuccess && postId) {
       navigate(`/posts/${postId}`);
     }
+    // eslint-disable-next-line
   }, [isSuccess, postId]);
 
   const handleChangeFile = async (e) => {
@@ -173,7 +175,7 @@ export const AddPost = () => {
               Удалить изображение
             </Button>
 
-            <img
+            <LazyLoadImage
               className={styles.image}
               src={`${process.env.REACT_APP_API_URL}${imageUrl}`}
               alt="Uploaded"

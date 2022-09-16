@@ -1,10 +1,12 @@
 import React from "react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+
 import styles from "./UserInfo.module.scss";
 
 export const UserInfo = ({ avatarUrl, fullName, additionalText }) => {
   return (
     <div className={styles.root}>
-      <img
+      <LazyLoadImage
         className={styles.avatar}
         src={avatarUrl || "/noavatar.png"}
         alt={fullName}

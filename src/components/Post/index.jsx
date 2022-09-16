@@ -7,6 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import EyeIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import CommentIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import { useConfirm } from "material-ui-confirm";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 
 import { UserInfo } from "../UserInfo";
 import { PostSkeleton } from "./Skeleton";
@@ -28,7 +29,6 @@ export const Post = ({
   isFullPost,
   isLoading,
   isEditable,
-  test,
 }) => {
   const confirm = useConfirm();
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export const Post = ({
         confirmationText: "Удалить",
         title: "Вы действительно хотите удалить статью?",
       }).then(async () => {
-        const { error } = await deletePost(id);
+        deletePost(id);
       });
     } catch (err) {
       console.log(err);
@@ -75,7 +75,7 @@ export const Post = ({
           </div>
         )}
         {imageUrl && (
-          <img
+          <LazyLoadImage
             className={clsx(styles.image, { [styles.imageFull]: isFullPost })}
             src={
               imageUrl.indexOf("http") < 0
