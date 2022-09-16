@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 
 // Create our baseQuery instance
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:4444",
+  baseUrl: process.env.REACT_APP_API_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.token;
 

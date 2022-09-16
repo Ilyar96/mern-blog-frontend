@@ -58,7 +58,12 @@ export const BlogLayout = ({
       )}
       <Grid container spacing={4}>
         <Grid xs={8} item>
-          {(isPostLoading ? [...Array(limit)] : data.data).map((obj, index) => {
+          {(isPostLoading
+            ? [...Array(limit)]
+            : data?.data
+            ? data.data
+            : []
+          ).map((obj, index) => {
             const commentsCount = comments.filter(
               (comment) => comment.postId === obj?._id
             ).length;

@@ -87,7 +87,7 @@ export const Post = ({
             className={clsx(styles.image, { [styles.imageFull]: isFullPost })}
             src={
               imageUrl.indexOf("http") < 0
-                ? `http://localhost:4444${imageUrl}`
+                ? `${process.env.REACT_APP_API_URL}${imageUrl}`
                 : imageUrl
             }
             alt={title}
