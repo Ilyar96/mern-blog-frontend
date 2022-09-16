@@ -27,9 +27,12 @@ $blue: #4361ee;
 }
 
 .image {
+  display: block;
   width: 100%;
   height: 300px;
   object-fit: cover;
+
+  background-color: #f1efef;
 
   &Full {
     min-height: 300px;
