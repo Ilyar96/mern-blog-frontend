@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -14,14 +14,14 @@ import { IconButton } from "@mui/material";
 import { SideBlock } from "./SideBlock";
 
 export const TagsBlock = ({ items, isLoading = true }) => {
-  const location = useLocation();
+  const { tag } = useParams();
   const navigate = useNavigate();
 
   return (
     <SideBlock title="Тэги">
       <List>
         {(isLoading ? [...Array(5)] : items).map((name, i) => {
-          const isCurrentTag = location.pathname.indexOf(name) !== -1;
+          const isCurrentTag = name === tag;
           const key = !name ? i : name;
 
           return (
