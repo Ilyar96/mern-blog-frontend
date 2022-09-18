@@ -7,7 +7,7 @@ import { Index } from "../components/AddComment";
 import { CommentsBlock } from "../components/CommentsBlock";
 import { Post } from "../components/Post";
 import { getCorrectDate, getCorrectTime } from "../utils/getCorrectDate";
-import { selectUser } from "../redux/services/authSlice";
+import { selectUser, selectIsAuth } from "../redux/services/authSlice";
 import {
   useGetPostCommentsQuery,
   useGetPostQuery,
@@ -16,6 +16,7 @@ import {
 export const FullPost = () => {
   const { id } = useParams();
   const userData = useSelector(selectUser);
+  const isAuth = useSelector(selectIsAuth);
   const {
     data,
     isLoading: isPostLoading,
@@ -64,13 +65,15 @@ export const FullPost = () => {
           <ReactMarkdown children={data.text} />
         </Post>
       )}
-      <CommentsBlock
-        commentsRef={observerRef}
-        items={comments?.data}
-        isLoading={isCommentsLoading}
-      >
-        <Index />
-      </CommentsBlock>
+      {(isAuth || comments?.data?.length > 0) && (
+        <CommentsBlock
+          commentsRef={observerRef}
+          items={comments?.data}
+          isLoading={isCommentsLoading}
+        >
+          <Index />
+        </CommentsBlock>
+      )}
     </>
   );
 };
