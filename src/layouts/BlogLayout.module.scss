@@ -18,8 +18,8 @@
 .sidebar,
 .pagination {
   @media (max-width: 991.98px) {
-    max-width: 100%;
-    flex-basis: 100%;
+    max-width: 100% !important;
+    flex-basis: 100% !important;
   }
 }
 
@@ -27,6 +27,6 @@
   @media (max-width: 991.98px) {
     width: 100%;
     order: 1;
-    margin-bottom: 30px;
+    margin-bottom: 30px !important;
   }
 }
