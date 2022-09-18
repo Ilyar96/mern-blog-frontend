@@ -58,8 +58,15 @@ $blue: #4361ee;
 }
 
 .title {
-  font-size: 28px;
   margin: 0;
+
+  @media (min-width: 767.98px) {
+    font-size: 28px;
+  }
+
+  @media (max-width: 767.98px) {
+    font-size: 23px;
+  }
 
   a {
     text-decoration: none;
