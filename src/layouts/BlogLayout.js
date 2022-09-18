@@ -14,6 +14,8 @@ import { useGetCommentsQuery, useGetTagsQuery } from "../redux/services/posts";
 import { TagsBlock } from "../components/TagsBlock";
 import { CommentsBlock } from "../components/CommentsBlock";
 
+import styles from "./BlogLayout.module.scss";
+
 export const BlogLayout = ({
   data,
   isPostLoading,
@@ -30,7 +32,7 @@ export const BlogLayout = ({
     useGetCommentsQuery();
 
   const isCategoryPage = !!tag;
-
+  console.log(styles);
   const scrollToTop = () => {
     scroll.scrollToTop();
   };
@@ -43,10 +45,10 @@ export const BlogLayout = ({
   }, [page]);
 
   return (
-    <>
+    <Grid container spacing={4}>
       {!isCategoryPage ? (
         <Tabs
-          style={{ marginBottom: 15 }}
+          className={styles.tabs}
           value={activeTab}
           onChange={tabChangeHandler}
         >
@@ -54,16 +56,11 @@ export const BlogLayout = ({
           <Tab label="Популярные" />
         </Tabs>
       ) : (
-        <h1>#{tag}</h1>
+        <h1 className={styles.tabs}>#{tag}</h1>
       )}
-      <Grid container spacing={4}>
-        <Grid xs={8} item>
-          {(isPostLoading
-            ? [...Array(limit)]
-            : data?.data
-            ? data.data
-            : []
-          ).map((obj, index) => {
+      <Grid className={styles.posts} xs={8} item>
+        {(isPostLoading ? [...Array(limit)] : data?.data ? data.data : []).map(
+          (obj, index) => {
             const commentsCount = comments.filter(
               (comment) => comment.postId === obj?._id
             ).length;
@@ -87,27 +84,27 @@ export const BlogLayout = ({
                 isEditable={userData?._id === obj.user?._id}
               />
             );
-          })}
-        </Grid>
-        <Grid xs={4} item>
-          <TagsBlock items={tags} isLoading={isTagsLoading} />
-          <CommentsBlock
-            items={comments ? comments.slice(0, 5) : []}
-            isLoading={isCommentsLoading}
-          />
-        </Grid>
-        {data?.pagesCount > 1 && (
-          <Grid item xs={8} justifyContent="center">
-            <Pagination
-              size="large"
-              count={data?.pagesCount}
-              page={page}
-              onChange={paginationChangeHandler}
-              shape="rounded"
-            />
-          </Grid>
+          }
         )}
       </Grid>
-    </>
+      <Grid className={styles.sidebar} xs={4} item>
+        <TagsBlock items={tags} isLoading={isTagsLoading} />
+        <CommentsBlock
+          items={comments ? comments.slice(0, 5) : []}
+          isLoading={isCommentsLoading}
+        />
+      </Grid>
+      {data?.pagesCount > 1 && (
+        <Grid className={styles.pagination} item xs={8} justifyContent="center">
+          <Pagination
+            size="large"
+            count={data?.pagesCount}
+            page={page}
+            onChange={paginationChangeHandler}
+            shape="rounded"
+          />
+        </Grid>
+      )}
+    </Grid>
   );
 };

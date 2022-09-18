@@ -1,0 +1,32 @@
+.tabs {
+  width: 100%;
+  flex-basis: 100%;
+  margin-top: 30px;
+  padding: 0 32px;
+
+  @media (min-width: 991.98px) {
+    margin-bottom: 15px;
+  }
+
+  @media (max-width: 991.98px) {
+    margin-bottom: 0;
+    padding-top: 0;
+  }
+}
+
+.posts,
+.sidebar,
+.pagination {
+  @media (max-width: 991.98px) {
+    max-width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+.sidebar {
+  @media (max-width: 991.98px) {
+    width: 100%;
+    order: 1;
+    margin-bottom: 30px;
+  }
+}
