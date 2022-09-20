@@ -1,5 +1,5 @@
 Runs the app on Versel:
-Open [https://vercel.com/](https://mern-blog-frontend-nine.vercel.app/)
+Open [https://vercel.com/](https://mern-blog-frontend-mu.vercel.app)
 
 # Getting Started with Create React App
 
