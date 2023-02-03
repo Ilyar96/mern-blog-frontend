@@ -16,75 +16,75 @@ import { selectToken, selectIsAuth } from "../../redux/services/authSlice";
 import styles from "./Login.module.scss";
 
 export const Login = () => {
-  const isAuth = useSelector(selectIsAuth);
-  const token = useSelector(selectToken);
-  const [login, { isError }] = useLoginMutation();
+	const isAuth = useSelector(selectIsAuth);
+	const token = useSelector(selectToken);
+	const [login, { isError }] = useLoginMutation();
 
-  const formSchema = Yup.object().shape({
-    email: Yup.string()
-      .required("Введите email")
-      .email("Неправильный формат email"),
-    password: Yup.string().required("Введите пароль"),
-  });
+	const formSchema = Yup.object().shape({
+		email: Yup.string()
+			.required("Введите email")
+			.email("Неправильный формат email"),
+		password: Yup.string().required("Введите пароль"),
+	});
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm({
-    resolver: yupResolver(formSchema),
-    mode: "onChange",
-  });
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isValid },
+	} = useForm({
+		resolver: yupResolver(formSchema),
+		mode: "onChange",
+	});
 
-  useEffect(() => {
-    if (token) {
-      window.localStorage.setItem("token", token);
-    }
-  }, [token]);
+	useEffect(() => {
+		if (token) {
+			window.localStorage.setItem("token", token);
+		}
+	}, [token]);
 
-  const onSubmit = (values) => {
-    login(values);
-  };
+	const onSubmit = (values) => {
+		login(values);
+	};
 
-  if (isAuth) {
-    return <Navigate to="/" />;
-  }
+	if (isAuth) {
+		return <Navigate to="/" />;
+	}
 
-  return (
-    <>
-      <Paper elevation={0} classes={{ root: styles.root }}>
-        <Typography classes={{ root: styles.title }} variant="h5">
-          Вход в аккаунт
-        </Typography>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            className={styles.field}
-            label="E-Mail"
-            error={Boolean(errors.email?.message)}
-            helperText={errors.email?.message}
-            {...register("email")}
-            fullWidth
-          />
-          <TextField
-            className={styles.field}
-            label="Пароль"
-            fullWidth
-            error={Boolean(errors.password?.message)}
-            helperText={errors.password?.message}
-            {...register("password")}
-          />
-          <Button
-            type="submit"
-            size="large"
-            variant="contained"
-            fullWidth
-            disabled={!isValid}
-          >
-            Войти
-          </Button>
-        </form>
-      </Paper>
-      <Modal isOpen={isError}>Не удалось авторизоваться</Modal>
-    </>
-  );
+	return (
+		<>
+			<Paper elevation={0} classes={{ root: styles.root }}>
+				<Typography classes={{ root: styles.title }} variant="h5">
+					Вход в аккаунт
+				</Typography>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<TextField
+						className={styles.field}
+						label="E-Mail"
+						error={Boolean(errors.email?.message)}
+						helperText={errors.email?.message}
+						{...register("email")}
+						fullWidth
+					/>
+					<TextField
+						className={styles.field}
+						label="Пароль"
+						fullWidth
+						error={Boolean(errors.password?.message)}
+						helperText={errors.password?.message}
+						{...register("password")}
+					/>
+					<Button
+						type="submit"
+						size="large"
+						variant="contained"
+						fullWidth
+						disabled={!isValid}
+					>
+						Войти
+					</Button>
+				</form>
+			</Paper>
+			<Modal isOpen={isError} text={"Не удалось авторизоваться"}></Modal>
+		</>
+	);
 };

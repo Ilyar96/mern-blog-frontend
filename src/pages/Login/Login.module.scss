@@ -1,23 +1,23 @@
 .root {
-  max-width: 400px;
-  border: 1px solid #dedede;
-  margin: 50px auto;
+	max-width: 400px;
+	border: 1px solid #dedede;
+	margin: 50px auto;
 
-  @media (min-width: 767.98px) {
-    padding: 50px;
-  }
+	@media (min-width: 767.98px) {
+		padding: 50px;
+	}
 
-  @media (max-width: 767.98px) {
-    padding: 30px;
-  }
+	@media (max-width: 767.98px) {
+		padding: 30px;
+	}
 }
 
 .field {
-  margin-bottom: 20px !important;
+	margin-bottom: 20px !important;
 }
 
 .title {
-  text-align: center !important;
-  font-weight: bold !important;
-  margin-bottom: 30px !important;
+	text-align: center !important;
+	font-weight: bold !important;
+	margin-bottom: 30px !important;
 }
