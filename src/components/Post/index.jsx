@@ -89,7 +89,11 @@ export const Post = ({
 					<UserInfo {...user} additionalText={createdAt} />
 					<div className={styles.indention}>
 						<h2
-							className={clsx(styles.title, { [styles.titleFull]: isFullPost })}
+							className={clsx(
+								styles.title,
+								{ [styles.titleShort]: !isFullPost },
+								{ [styles.titleFull]: isFullPost }
+							)}
 						>
 							{isFullPost ? title : <Link to={`/posts/${id}`}>{title}</Link>}
 						</h2>

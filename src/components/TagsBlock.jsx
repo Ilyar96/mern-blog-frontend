@@ -14,52 +14,52 @@ import { IconButton } from "@mui/material";
 import { SideBlock } from "./SideBlock";
 
 export const TagsBlock = ({ items, isLoading = true }) => {
-  const { tag } = useParams();
-  const navigate = useNavigate();
+	const { tag } = useParams();
+	const navigate = useNavigate();
 
-  return (
-    <SideBlock title="Тэги">
-      <List>
-        {(isLoading ? [...Array(5)] : items).map((name, i) => {
-          const isCurrentTag = name === tag;
-          const key = !name ? i : name;
+	return (
+		<SideBlock title="Тэги">
+			<List>
+				{(isLoading ? [...Array(5)] : items).map((name, i) => {
+					const isCurrentTag = name === tag;
+					const key = !name ? i : name;
 
-          return (
-            <ListItem disablePadding key={key}>
-              <ListItemButton>
-                <Link
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    textDecoration: "none",
-                    color: "black",
-                  }}
-                  to={`/category/${name}`}
-                >
-                  <ListItemIcon>
-                    <TagIcon />
-                  </ListItemIcon>
-                  {isLoading ? (
-                    <Skeleton width={100} />
-                  ) : (
-                    <ListItemText primary={name} />
-                  )}
-                </Link>
-                {isCurrentTag && (
-                  <IconButton
-                    onClick={() => navigate("/")}
-                    color="secondary"
-                    size="small"
-                    title={"Вернуться к блогу"}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                )}
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
-    </SideBlock>
-  );
+					return (
+						<ListItem disablePadding key={key}>
+							<ListItemButton>
+								<Link
+									style={{
+										display: "flex",
+										width: "100%",
+										textDecoration: "none",
+										color: "black",
+									}}
+									to={`/category/${name}`}
+								>
+									<ListItemIcon>
+										<TagIcon />
+									</ListItemIcon>
+									{isLoading ? (
+										<Skeleton width={100} />
+									) : (
+										<ListItemText primary={name} />
+									)}
+								</Link>
+								{isCurrentTag && !isLoading && (
+									<IconButton
+										onClick={() => navigate("/")}
+										color="secondary"
+										size="small"
+										title={"Вернуться к блогу"}
+									>
+										<DeleteIcon />
+									</IconButton>
+								)}
+							</ListItemButton>
+						</ListItem>
+					);
+				})}
+			</List>
+		</SideBlock>
+	);
 };
